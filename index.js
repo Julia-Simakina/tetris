@@ -7,8 +7,8 @@ console.log(randomTetraminoName);
 
 const tetrominos = {
   I: [
-    [1, 1, 1, 1],
     [0, 0, 0, 0],
+    [1, 1, 1, 1],
     [0, 0, 0, 0],
     [0, 0, 0, 0],
   ],
@@ -77,20 +77,6 @@ function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-// Добавление тетромино в матрицу gameBoard по указанным координатам x и y
-// function addTetrominoToBoard(tetromino, x, y) {
-//   for (let i = 0; i < tetromino.length; i++) {
-//     for (let j = 0; j < tetromino[i].length; j++) {
-//       if (tetromino[i][j]) {
-//         gameBoard[y + i][x + j] = tetromino[i][j];
-//       }
-//       // if (tetromino[i-1][j]) {
-//       //   gameBoard[y + i][x + j] =  0
-//       // }
-//     }
-//   }
-// }
-
 /**
  * @param tetromino - matrix
  * @param x - start X position
@@ -109,62 +95,8 @@ function addTetrominoToBoard(tetromino, x, y) {
   rerender();
 }
 
-let INITIAL_X_INDEX = 3; // начальная позиция по оси X
-let INITIAL_Y_INDEX = 3; // начальная позиция по оси Y
-
-// function removeTetromino() {
-//   for (let i = 0; i < gameBoard.length; i++) {
-//     for (let j = 0; j < gameBoard[i].length; j++) {
-//         gameBoard[i][j] = 0;
-//       }
-//     }
-//   }
-
-// function fallTetramino() {
-
-//   // Добавить тетромино на игровое поле
-//   let initialCoord = {
-//     x: INITIAL_X_INDEX,
-//     y: INITIAL_Y_INDEX,
-//   };
-//   setInterval(() => {
-//     initialCoord.y += 1;
-
-//   // initializeGameBoard();
-//   }, 1000);
-// rerender()
-// }
-
-// function moveDown() {
-
-//   setInterval(() => {
-
-//     INITIAL_Y_INDEX += 1;
-//     // console.log(INITIAL_Y_INDEX);
-//     addTetrominoToBoard(
-//       tetrominos[randomTetraminoName],
-//       INITIAL_X_INDEX,
-//       INITIAL_Y_INDEX
-//     );
-
-//     rerender();
-//   }, 1000);
-// }
-
-// function moveTetrominoDown() {
-//   for (let row = gameBoard.length - 1; row >= 0; row--) {
-//     for (let col = 0; col < gameBoard[row].length; col++) {
-//       if (gameBoard[row][col] > 0) {
-//         gameBoard[row][col] = 0;
-//         if (row + 1 < gameBoard.length) {
-//           gameBoard[row + 1][col] = 1;
-//         }
-//       }
-//     }
-//   }
-// }
-
-// moveRight()
+let initialX = 3; // начальная позиция по оси X
+let initialY = 3; // начальная позиция по оси Y
 
 //Ячейки grid
 function initializeGameBoard() {
@@ -222,36 +154,73 @@ const rerender = () => {
   }
 };
 
-// function moveRight() {
-//   for (let i = 0; i < gameBoard.length; i++) {
-//     for (let j = 0; j < gameBoard[i].length; j++) {
-//       if (gameBoard[i][j] > 0) {
-//         gameBoard[i][j + 1] = gameBoard[i][j];
-//         gameBoard[i][j] = 0;
-//       }
-//     }
-//   }
-// }
-
-function moveLeft() {
-  for (let i = 0; i < gameBoard.length; i++) {
-    for (let j = 0; j < gameBoard[i].length; j++) {
-      if (
-        gameBoard[i][j] > 0 &&
-        // gameBoard[i][j - 1] !== "1" &&
-        gameBoard[i][j - 1] !== gameBoard[i][j] &&
-        gameBoard[i][j - 1] !== undefined
+let currentTetromino = tetrominos[randomTetraminoName];
+function moveRight() {
+  if (initialX + currentTetromino[0].length < gameBoard[0].length) {
+    initialX++; // Смещение вправо
+    // Обновить матрицу с учетом новых координат
+    for (let tetRow = 0; tetRow < currentTetromino.length; tetRow++) {
+      for (
+        let tetCol = currentTetromino[tetRow].length - 1;
+        tetCol >= 0;
+        tetCol--
       ) {
-        gameBoard[i][j - 1] = gameBoard[i][j];
-        gameBoard[i][j] = 0;
+        if (currentTetromino[tetRow][tetCol] !== 0) {
+          gameBoard[initialY + tetRow][initialX + tetCol] =
+            currentTetromino[tetRow][tetCol];
+          // Обнулить предыдущее местоположение тетрамино
+          if (tetCol !== 0) {
+            gameBoard[initialY + tetRow][initialX + tetCol - 1] = 0;
+          }
+        }
       }
-
-      // if(gameBoard[i][0]) {
-      //   return
-      // }
     }
   }
 }
+function moveLeft() {
+  if (initialX > 0) {
+    initialX--; // Смещение влево
+    // Обновить матрицу с учетом новых координат
+    for (let tetRow = 0; tetRow < currentTetromino.length; tetRow++) {
+      for (let tetCol = 0; tetCol < currentTetromino[tetRow].length; tetCol++) {
+        if (currentTetromino[tetRow][tetCol] !== 0) {
+          gameBoard[initialY + tetRow][initialX + tetCol] =
+            currentTetromino[tetRow][tetCol];
+          // Обнулить предыдущее местоположение тетрамино
+          if (tetCol !== currentTetromino[tetRow].length - 1) {
+            gameBoard[initialY + tetRow][initialX + tetCol + 1] = 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+function moveDown() {
+  if (initialY + currentTetromino.length < gameBoard.length) {
+    initialY++;
+
+    for (let tetRow = currentTetromino.length - 1; tetRow >= 0; tetRow--) {
+      for (let tetCol = 0; tetCol < currentTetromino[tetRow].length; tetCol++) {
+        if (currentTetromino[tetRow][tetCol] !== 0) {
+          gameBoard[initialY + tetRow][initialX + tetCol] =
+            currentTetromino[tetRow][tetCol];
+        }
+        // Обнулить предыдущее местоположение тетрамино
+        if (tetRow !== 0) {
+          gameBoard[initialY + tetRow - 1][initialX + tetCol] = 0;
+        }
+      }
+    }
+  }
+}
+
+document.addEventListener("keydown", function (event) {
+  if (event.code == "ArrowDown") {
+    moveDown();
+    rerender();
+  }
+});
 
 document.addEventListener("keydown", function (event) {
   if (event.code == "ArrowRight") {
@@ -274,11 +243,7 @@ console.log(gameBoard);
 
 const startGame = () => {
   initializeGameBoard();
-  addTetrominoToBoard(
-    tetrominos[randomTetraminoName],
-    INITIAL_X_INDEX,
-    INITIAL_Y_INDEX
-  );
+  addTetrominoToBoard(currentTetromino, initialX, initialY);
 
   rerender();
   // moveDown()
@@ -328,3 +293,11 @@ startGame();
     },
   ],
 ];
+
+
+class ClassA {
+  currentCoords = {
+    x: null,
+    y: null,
+  }
+}
